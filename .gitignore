@@ -1,0 +1,23 @@
+﻿# Entorno Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Credenciales
+.env
+*.pem
+*.key
+
+# Datos fuente con información sensible
+data/raw/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
