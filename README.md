@@ -13,17 +13,19 @@ La solución se organiza en dos ejercicios principales:
 
 # Estado del proyecto
 
-**Versión:** Desarrollo analítico avanzado — actualización al 12 de octubre de 2026  
-**Estado:** Ejercicio Piscilago avanzado; diagnóstico SQL de Digiturnos ejecutado y validado; visualización final y conclusiones ejecutivas pendientes de consolidación.
+**Versión:** Desarrollo analítico avanzado  
+**Estado:** Análisis SQL y tableros de Power BI de Piscilago y Digiturnos desarrollados. 
 
 **Avances principales:**
 
 - Perfilamiento, limpieza, normalización y controles de calidad de las fuentes de Piscilago y Digiturnos.
 - Dimensiones reutilizables de afiliados y grupo familiar; base analítica de Piscilago.
-- Consultas de modelo, indicadores y análisis de Piscilago; tablero de Power BI en desarrollo avanzado.
+- Consultas de modelo, indicadores y análisis de Piscilago; tablero de Power BI y exportación PDF preparados.
 - Modelo PostgreSQL y consultas de análisis operativo de Digiturnos, incluyendo demanda, espera, franjas, receptores y ocupación estimada.
 - Diagnóstico integrado por sede (4.5.3) y matriz exploratoria de priorización operativa (4.5.4), ejecutados con resultados revisados.
 - Conciliaciones documentadas entre universo de solicitudes, jornadas válidas y combinaciones sede-receptor.
+- Tablero Digiturnos de dos páginas: **01. Diagnóstico y prioridades** y **02. Análisis horario y patrones de demanda**; incluye indicadores generales, ranking de sedes, priorización, distribución horaria, comparación demanda/espera, matriz día-hora y segmentación por sede.
+- Las recomendaciones ejecutivas se reservan para la presentación corporativa, evitando duplicar contenidos en Power BI.
 
 **Alcance de la validación:** los resultados numéricos reportados proceden de las ejecuciones de SQL compartidas durante el desarrollo. La sincronización efectiva del repositorio remoto y la existencia de una versión local guardada de cada consulta deben comprobarse en Git antes de la entrega.
 
@@ -40,9 +42,12 @@ Prueba_Analista_BI/
 ├── notebooks/
 │   ├── 01_perfilamiento_piscilago.ipynb
 │   └── 02_perfilamiento_digiturnos.ipynb
-├── outputs/                         # Exportaciones locales; revisar datos sensibles
+├── outputs/                         # Exportaciones PDF; revisar antes de publicar
+│   ├── Tablero_Piscilago.pdf
+│   └── Tablero_Digiturnos.pdf        # Exportar desde Power BI y verificar
 ├── powerbi/
-│   └── Tablero_Piscilago.pbix        # Archivo observado en el entorno local
+│   ├── Tablero_Piscilago.pbix
+│   └── Tablero_Digiturnos.pbix
 ├── sql/
 │   ├── 01_modelo_piscilago.sql
 │   ├── 02_indicadores_piscilago.sql
@@ -56,7 +61,7 @@ Prueba_Analista_BI/
 └── requirements.txt
 ```
 
-La estructura muestra los componentes identificados en el proyecto; los archivos generados y los productos de BI deben verificarse antes del commit. El entorno virtual `.venv/` y las fuentes `data/raw/` permanecen locales.
+La estructura recoge los productos desarrollados y la ruta prevista para el PDF final de Digiturnos; se debe comprobar la existencia y apertura de cada archivo antes del commit. El entorno virtual `.venv/` y las fuentes `data/raw/` permanecen locales.
 
 ---
 
@@ -618,12 +623,23 @@ La diferencia de **217 solicitudes** corresponde a las reglas específicas del c
 4. El porcentaje de receptores principales mide combinaciones sede-receptor, **no cobertura de solicitudes**. En Tintal Plaza, Unicentro de Occidente y Santa Librada se recomienda contrastar los resultados con el análisis complementario.
 5. Los valores de espera y los filtros de validez corresponden a las definiciones de cada indicador; no debe extrapolarse el universo de jornadas válidas al total de atenciones.
 
+# Power BI — Digiturnos
+
+El archivo `powerbi/Tablero_Digiturnos.pbix` contiene **dos páginas**:
+
+1. **01. Diagnóstico y prioridades:** tarjetas de volumen total, solicitudes con espera superior a 15 minutos y porcentaje correspondiente; barras por sede de solicitudes afectadas y puntaje de priorización; segmentador de nivel de prioridad; tabla de diagnóstico con P90, porcentaje de esperas superiores a 15 minutos, ocupación estimada, acción sugerida e indicador de seguimiento.
+2. **02. Análisis horario y patrones de demanda:** distribución de solicitudes por hora; gráfico combinado de volumen y porcentaje de esperas superiores a 15 minutos; matriz de calor de día de la semana (lunes a domingo) y hora; segmentador por sede.
+
+**Cifras de control mostradas en el tablero:** 883.080 solicitudes totales, aproximadamente 125 mil con espera superior a 15 minutos y 14,14 % de incidencia general. La cifra abreviada de 125 mil es una visualización redondeada; no debe utilizarse como valor exacto para conciliaciones.
+
+**Exportación estática:** `outputs/Tablero_Digiturnos.pdf` (dos páginas; exportación y revisión visual requeridas antes de la publicación). El PBIX conserva los filtros y las interacciones. El informe no incorpora una tercera página de conclusiones: los hallazgos y las recomendaciones se desarrollarán en la presentación corporativa.
+
 ## Trabajo pendiente
 
 - Verificar que la versión **guardada en disco** de `05_analisis_digiturnos.sql` incluya íntegramente las consultas 4.5.1 a 4.5.4 y sus controles.
-- Profundizar en demanda por sede, servicio, día y hora para contrastar hipótesis de cuello de botella.
-- Construir o completar las visualizaciones de Digiturnos en Power BI.
-- Redactar conclusiones y recomendaciones ejecutivas diferenciando hallazgos, hipótesis y acciones.
+- Exportar y revisar visualmente `outputs/Tablero_Digiturnos.pdf` con las dos páginas y filtros restablecidos.
+- Profundizar, si se requiere para la presentación, en demanda por sede, servicio, día y hora para contrastar hipótesis de cuello de botella.
+- Elaborar la presentación corporativa con conclusiones y recomendaciones ejecutivas, diferenciando hallazgos, hipótesis y acciones.
 - Ejecutar la validación final de reproducibilidad, privacidad y sincronización de GitHub.
 
 ---
@@ -833,19 +849,19 @@ para los análisis posteriores en SQL y Power BI.
 |---|---|
 | Piscilago: perfilamiento, dimensiones y base analítica | Desarrollado |
 | Piscilago: SQL | Avanzado |
-| Piscilago: Power BI | Avanzado; validar versión final |
+| Piscilago: Power BI | Tablero desarrollado; PDF disponible en el proyecto local |
 | Digiturnos: perfilamiento y controles temporales | Desarrollado |
 | Digiturnos: tablas y análisis SQL | Desarrollado; verificar versión guardada |
 | Digiturnos: consultas 4.5.1 a 4.5.4 | Ejecutadas y revisadas |
-| Digiturnos: tablero Power BI | Pendiente de consolidación |
-| Digiturnos: conclusiones ejecutivas | Pendiente |
+| Digiturnos: tablero Power BI | Dos páginas desarrolladas; exportar y validar PDF |
+| Digiturnos: conclusiones ejecutivas | Se incluirán en la presentación corporativa |
 | Reproducibilidad y publicación GitHub | Requiere verificación final |
 
 ## Control de versiones y publicación
 
 Antes de publicar, guardar los notebooks, scripts SQL, PBIX y README en sus rutas locales. Ejecutar `git status`, inspeccionar los archivos preparados con `git diff --cached --stat` y confirmar que no haya datos personales, credenciales, fuentes originales ni exportaciones sensibles. Luego realizar commit y push a `origin/main`.
 
-El archivo `.gitignore` excluye `data/raw/`, `.venv/` y `outputs/`; **los archivos previamente versionados no dejan de rastrearse automáticamente** al agregarlos a `.gitignore`. Verificar el estado real con `git ls-files`.
+El archivo `.gitignore` excluye `data/raw/`, `.venv/` y `outputs/`. Para publicar **únicamente** los PDF de entrega revisados, utilizar `git add -f outputs/Tablero_Piscilago.pdf outputs/Tablero_Digiturnos.pdf` (si ambos existen), sin habilitar indiscriminadamente otros contenidos de `outputs/`. **Los archivos previamente versionados no dejan de rastrearse automáticamente** al agregarlos a `.gitignore`. Verificar el estado real con `git ls-files`.
 
 La documentación contiene resultados de las ejecuciones SQL realizadas; no sustituye una prueba de ejecución completa desde un entorno limpio.
 

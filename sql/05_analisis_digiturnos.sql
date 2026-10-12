@@ -4004,7 +4004,6 @@ ORDER BY
 
 
 
-
 /*
 ====================================================================
 EJERCICIO 2 - CONSULTA 4.5.4
@@ -4531,3 +4530,249 @@ ORDER BY
     puntaje_total DESC,
     solicitudes_espera_15 DESC;
 
+
+
+/*
+============================================================
+PRUEBA TECNICA - ANALISTA BI
+EJERCICIO 2 - DIGITURNOS
+
+CONSULTA 4.6
+TABLA ANALITICA OPERATIVA PARA POWER BI
+============================================================
+
+OBJETIVO
+Analizar la demanda y los tiempos de espera por sede,
+fecha, hora de solicitud y tipo de servicio.
+
+GRANULARIDAD
+Una fila por:
+sede + fecha + hora + tipo_servicio.
+
+REGLAS METODOLOGICAS
+1. Se conserva el total de solicitudes.
+2. Los indicadores de espera utilizan valores >= 0.
+3. Se incluyen esperas iguales a cero.
+4. Se excluyen esperas nulas y negativas del promedio,
+   mediana y P90.
+5. El umbral de 15 minutos es exploratorio.
+6. Los porcentajes se calculan sobre esperas validas.
+7. Los percentiles no deben promediarse en Power BI.
+8. La consulta es de solo lectura.
+
+VALIDACION PENDIENTE
+Contrastar las reglas de espera con la consulta 4.5.4
+antes de utilizar ambos archivos en el mismo tablero.
+============================================================
+*/
+
+WITH base AS (
+
+    SELECT
+        id_registro_original,
+
+        COALESCE(
+            NULLIF(TRIM(sede), ''),
+            'Sin sede'
+        ) AS sede,
+
+        dt_solicitud::date AS fecha_servicio,
+
+        EXTRACT(
+            HOUR FROM dt_solicitud
+        )::integer AS hora_solicitud,
+
+        EXTRACT(
+            ISODOW FROM dt_solicitud
+        )::integer AS dia_semana_iso,
+
+        COALESCE(
+            NULLIF(TRIM("Tipo_servicio"), ''),
+            'Sin clasificacion'
+        ) AS tipo_servicio,
+
+        espera_min_diag,
+
+        CASE
+            WHEN espera_min_diag IS NOT NULL
+             AND espera_min_diag >= 0
+            THEN TRUE
+            ELSE FALSE
+        END AS espera_valida
+
+    FROM digiturnos.digiturnos_atenciones
+
+),
+
+indicadores AS (
+
+    SELECT
+        sede,
+        fecha_servicio,
+        hora_solicitud,
+        dia_semana_iso,
+        tipo_servicio,
+
+        COUNT(*) AS total_solicitudes,
+
+        COUNT(*) FILTER (
+            WHERE espera_valida
+        ) AS solicitudes_espera_validas,
+
+        COUNT(*) FILTER (
+            WHERE NOT espera_valida
+        ) AS solicitudes_espera_invalidas,
+
+        COUNT(*) FILTER (
+            WHERE espera_valida
+              AND espera_min_diag > 15
+        ) AS solicitudes_espera_15,
+
+        AVG(espera_min_diag)
+            FILTER (WHERE espera_valida)
+            AS espera_promedio,
+
+        PERCENTILE_CONT(0.5)
+            WITHIN GROUP (ORDER BY espera_min_diag)
+            FILTER (WHERE espera_valida)
+            AS espera_mediana,
+
+        PERCENTILE_CONT(0.9)
+            WITHIN GROUP (ORDER BY espera_min_diag)
+            FILTER (WHERE espera_valida)
+            AS espera_p90
+
+    FROM base
+
+    GROUP BY
+        sede,
+        fecha_servicio,
+        hora_solicitud,
+        dia_semana_iso,
+        tipo_servicio
+
+)
+
+SELECT
+    sede,
+    fecha_servicio,
+    hora_solicitud,
+    dia_semana_iso,
+    tipo_servicio,
+
+    total_solicitudes,
+    solicitudes_espera_validas,
+    solicitudes_espera_invalidas,
+    solicitudes_espera_15,
+
+    ROUND(
+        (
+            100.0 * solicitudes_espera_validas
+            / NULLIF(total_solicitudes, 0)
+        )::numeric,
+        2
+    ) AS cobertura_espera_pct,
+
+    ROUND(
+        (
+            100.0 * solicitudes_espera_15
+            / NULLIF(solicitudes_espera_validas, 0)
+        )::numeric,
+        2
+    ) AS pct_espera_15,
+
+    ROUND(
+        espera_promedio::numeric, 2
+    ) AS espera_promedio_min,
+
+    ROUND(
+        espera_mediana::numeric, 2
+    ) AS espera_mediana_min,
+
+    ROUND(
+        espera_p90::numeric, 2
+    ) AS espera_p90_min
+
+FROM indicadores
+
+ORDER BY
+    fecha_servicio,
+    sede,
+    hora_solicitud,
+    tipo_servicio;
+
+
+/*
+====================================================
+VALIDACION DE LA CONSULTA 4.6
+Control de volumen y consistencia de esperas
+====================================================
+*/
+
+SELECT
+    COUNT(*) AS total_solicitudes,
+
+    COUNT(*) FILTER (
+        WHERE dt_solicitud IS NULL
+    ) AS solicitudes_sin_fecha,
+
+    COUNT(*) FILTER (
+        WHERE espera_min_diag IS NOT NULL
+          AND espera_min_diag >= 0
+    ) AS solicitudes_espera_validas,
+
+    COUNT(*) FILTER (
+        WHERE espera_min_diag IS NULL
+           OR espera_min_diag < 0
+    ) AS solicitudes_espera_invalidas,
+
+    COUNT(*) FILTER (
+        WHERE espera_min_diag > 15
+    ) AS solicitudes_espera_15,
+
+    ROUND(
+        100.0 * COUNT(*) FILTER (
+            WHERE espera_min_diag > 15
+        ) / NULLIF(
+            COUNT(*) FILTER (
+                WHERE espera_min_diag IS NOT NULL
+                  AND espera_min_diag >= 0
+            ), 0
+        ),
+        2
+    ) AS pct_espera_15
+
+FROM digiturnos.digiturnos_atenciones;
+
+
+/*
+====================================================
+CONTROL DE DIMENSIONES PARA POWER BI
+====================================================
+*/
+
+SELECT
+    COUNT(*) AS total_registros,
+
+    COUNT(DISTINCT sede) AS total_sedes,
+
+    COUNT(DISTINCT "Tipo_servicio") AS total_tipos_servicio,
+
+    COUNT(DISTINCT dt_solicitud::date)
+        AS total_fechas,
+
+    MIN(dt_solicitud::date) AS primera_fecha,
+
+    MAX(dt_solicitud::date) AS ultima_fecha,
+
+    COUNT(*) FILTER (
+        WHERE sede IS NULL
+           OR TRIM(sede) = ''
+    ) AS solicitudes_sin_sede,
+
+    COUNT(*) FILTER (
+        WHERE "Tipo_servicio" IS NULL
+           OR TRIM("Tipo_servicio") = ''
+    ) AS solicitudes_sin_tipo_servicio
+
+FROM digiturnos.digiturnos_atenciones;
