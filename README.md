@@ -13,69 +13,53 @@ La solución se organiza en dos ejercicios principales:
 
 # Estado del proyecto
 
-**Versión actual:** Entrega preliminar  
-**Estado:** Desarrollo en curso
+**Versión:** Desarrollo analítico avanzado — actualización al 12 de octubre de 2026  
+**Estado:** Ejercicio Piscilago avanzado; diagnóstico SQL de Digiturnos ejecutado y validado; visualización final y conclusiones ejecutivas pendientes de consolidación.
 
-A la fecha se ha avanzado en:
+**Avances principales:**
 
-- Perfilamiento de las fuentes del ejercicio de Piscilago.
-- Limpieza y normalización de identificadores.
-- Construcción de una dimensión consistente de afiliados.
-- Construcción de una dimensión de grupo familiar.
-- Generación de una base analítica de Piscilago.
-- Desarrollo de consultas SQL para el ejercicio de Piscilago.
-- Construcción inicial de visualizaciones en Power BI.
-- Perfilamiento y preparación de `T_DIGITURNOS`.
-- Validación de fechas y tiempos operativos.
-- Construcción de indicadores temporales.
-- Identificación y tratamiento de inconsistencias temporales.
-- Construcción de dimensiones reutilizables para ambos ejercicios.
-- Documentación de controles de calidad y trazabilidad.
+- Perfilamiento, limpieza, normalización y controles de calidad de las fuentes de Piscilago y Digiturnos.
+- Dimensiones reutilizables de afiliados y grupo familiar; base analítica de Piscilago.
+- Consultas de modelo, indicadores y análisis de Piscilago; tablero de Power BI en desarrollo avanzado.
+- Modelo PostgreSQL y consultas de análisis operativo de Digiturnos, incluyendo demanda, espera, franjas, receptores y ocupación estimada.
+- Diagnóstico integrado por sede (4.5.3) y matriz exploratoria de priorización operativa (4.5.4), ejecutados con resultados revisados.
+- Conciliaciones documentadas entre universo de solicitudes, jornadas válidas y combinaciones sede-receptor.
+
+**Alcance de la validación:** los resultados numéricos reportados proceden de las ejecuciones de SQL compartidas durante el desarrollo. La sincronización efectiva del repositorio remoto y la existencia de una versión local guardada de cada consulta deben comprobarse en Git antes de la entrega.
 
 ---
+
 
 # Estructura del proyecto
 
 ```text
 Prueba_Analista_BI/
-│
-├── .venv/
-│
 ├── data/
-│   ├── raw/
-│   │   ├── AFILIADOS_A_CARGO.xlsx
-│   │   ├── BD_AFILIADOS.csv
-│   │   ├── BD_CONSUMOS_PISCILAGO.csv
-│   │   └── T_DIGITURNOS.csv
-│   │
-│   └── processed/
-│       ├── dim_afiliados_consistentes.csv
-│       ├── dim_grupo_familiar.csv
-│       └── piscilago_analitica.csv
-│
+│   ├── raw/                         # Fuentes originales; no publicar
+│   └── processed/                   # Bases y dimensiones procesadas
 ├── notebooks/
 │   ├── 01_perfilamiento_piscilago.ipynb
 │   └── 02_perfilamiento_digiturnos.ipynb
-│
-├── outputs/
-│
+├── outputs/                         # Exportaciones locales; revisar datos sensibles
 ├── powerbi/
-│
+│   └── Tablero_Piscilago.pbix        # Archivo observado en el entorno local
 ├── sql/
 │   ├── 01_modelo_piscilago.sql
 │   ├── 02_indicadores_piscilago.sql
-│   └── 03_analisis_piscilago.sql
-│
+│   ├── 03_analisis_piscilago.sql
+│   ├── 04_modelo_digiturnos.sql
+│   └── 05_analisis_digiturnos.sql
 ├── src/
-│
 ├── tests/
-│
 ├── .gitignore
 ├── README.md
 └── requirements.txt
 ```
 
+La estructura muestra los componentes identificados en el proyecto; los archivos generados y los productos de BI deben verificarse antes del commit. El entorno virtual `.venv/` y las fuentes `data/raw/` permanecen locales.
+
 ---
+
 
 # Arquitectura de trabajo
 
@@ -573,93 +557,77 @@ Múltiples titulares
 
 ---
 
-# Modelo analítico esperado para Digiturnos
+# Modelo analítico y análisis SQL de Digiturnos
 
-La arquitectura prevista es:
+El perfilamiento de `T_DIGITURNOS` parte de **1.016.267 filas**, de las cuales **133.187** estaban completamente vacías. Se conservaron **883.080 solicitudes útiles**. Se identificaron cuatro registros con inconsistencias temporales en el diagnóstico inicial, preservados para auditoría y excluidos según la validez exigida por cada indicador.
 
-```text
-dim_afiliados_consistentes
-           │
-           │ many to one
-           ▼
-       T_DIGITURNOS
-           ▲
-           │ many to one
-           │
-dim_grupo_familiar
-```
+La base de PostgreSQL incorpora el esquema `digiturnos` y las tablas analíticas `digiturnos_atenciones` y `digiturnos_franjas`. El desarrollo SQL se organiza en:
 
-La clasificación final seguirá la prioridad:
+- `sql/04_modelo_digiturnos.sql`: preparación/modelado de las estructuras de consulta.
+- `sql/05_analisis_digiturnos.sql`: indicadores, controles, ocupación estimada, diagnóstico integrado y priorización.
 
-```text
-1. Afiliado
-2. Grupo familiar
-3. No afiliado
-```
+## Resultados validados de Digiturnos
 
----
+| Control | Resultado |
+|---|---:|
+| Sedes | 13 |
+| Solicitudes analíticas | 883.080 |
+| Solicitudes conciliadas con franjas | 883.080 |
+| Combinaciones sede-receptor | 256 |
+| Combinaciones principales (30 o más jornadas válidas) | 109 |
+| Combinaciones complementarias (1–29 jornadas válidas) | 146 |
+| Combinaciones sin jornadas válidas | 1 |
+| Jornadas válidas | 17.021 |
+| Solicitudes incluidas en jornadas válidas | 882.863 |
+| Solicitudes excluidas de ese cálculo | 217 |
 
-# Punto de corte de la entrega preliminar
+La diferencia de **217 solicitudes** corresponde a las reglas específicas del cálculo de ocupación: **103** asociadas a jornadas con duraciones inválidas, **1** a ventana no positiva y **113** a minutos efectivos superiores a la ventana observada. Esta exclusión **no implica borrar solicitudes** de la base ni de los indicadores de demanda.
 
-La entrega se detiene de manera intencional antes del `merge` definitivo de Digiturnos con las dimensiones maestras.
+## Consultas de síntesis y priorización
 
-Actualmente ya se encuentran construidos:
+- **4.5.1 — Síntesis por sede:** demanda, promedio de espera, percentil 90 (P90), esperas mayores a 15 y 30 minutos, y duración de atención.
+- **4.5.2 — Ocupación estimada por sede:** proporción entre minutos efectivos de atención y minutos de ventana observada; distingue análisis principal y global.
+- **4.5.3 — Diagnóstico integrado:** combina demanda, espera y ocupación; construye perfiles operativos exploratorios.
+- **4.5.4 — Priorización de intervenciones:** puntaje relativo de 0 a 100 basado en severidad (40 puntos), magnitud de esperas superiores a 15 minutos (40) y contexto de presión operativa (20).
 
-```text
-dim_afiliados_consistentes.csv
-dim_grupo_familiar.csv
-piscilago_analitica.csv
-```
+### Priorización obtenida en 4.5.4
 
-Durante la última ejecución del notebook se detectó una discrepancia en la variable `dim_afiliados` cargada en memoria:
+| Sede | P90 espera (min) | Solicitudes con espera >15 min | Ocupación principal | Puntaje | Prioridad |
+|---|---:|---:|---:|---:|---|
+| Suba | 23,90 | 15.805 | 60,48 % | 87,50 | 1 — Intervención focalizada |
+| Soacha | 20,58 | 17.177 | 56,02 % | 82,50 | 1 — Intervención focalizada |
+| Calle 26 | 17,67 | 20.203 | 63,27 % | 75,83 | 1 — Intervención focalizada |
+| Centro Mayor | 22,95 | 12.785 | 58,99 % | 75,00 | 1 — Intervención focalizada |
+| Tintal Plaza | 20,28 | 15.787 | 57,32 % | 65,83 | 2 — Optimización operativa |
+| Unicentro de Occidente | 20,30 | 8.559 | 60,12 % | 64,16 | 2 — Optimización operativa |
+| Santa Librada | 19,67 | 6.676 | 61,06 % | 54,17 | 2 — Optimización operativa |
+| Usaquén | 18,68 | 8.042 | 43,38 % | 46,67 | 3 — Seguimiento preventivo |
+| Calle 63 | 16,95 | 5.705 | 40,58 % | 29,17 | 3 — Seguimiento preventivo |
+| Fusagasugá | 15,38 | 4.722 | 58,03 % | 26,67 | 3 — Seguimiento preventivo |
+| Girardot | 14,80 | 4.396 | 66,63 % | 26,66 | 3 — Seguimiento preventivo |
+| Funza | 12,50 | 4.091 | 48,94 % | 11,67 | 3 — Seguimiento preventivo |
+| La Mesa | 13,57 | 896 | 55,36 % | 4,17 | 3 — Seguimiento preventivo |
 
-```text
-Duplicados observados: 9
-Nulos observados:      10
-```
+**Interpretación:** Suba y Soacha requieren analizar la severidad de la espera; Calle 26 destaca por la cantidad absoluta de solicitudes afectadas; Centro Mayor presenta un P90 elevado. Estas asociaciones justifican análisis adicionales por servicio, día y franja horaria, pero **no prueban por sí mismas la causa** de las demoras.
 
-Sin embargo, una validación previa del archivo procesado había reportado una dimensión sin duplicados ni nulos.
+**Advertencias metodológicas:**
 
-Por esta razón, antes de continuar se realizará una validación completa mediante:
+1. La ocupación calculada es un **indicador proxy**: minutos de atención efectiva divididos entre minutos de ventana observada, no utilización contractual ni capacidad instalada.
+2. La ocupación principal se calcula exclusivamente con combinaciones de **30 o más jornadas válidas**; la global incluye todas las combinaciones con jornadas válidas.
+3. Los puntajes de prioridad utilizan `PERCENT_RANK` y ponderaciones analíticas; no son una escala oficial ni permiten interpretar diferencias de puntaje como diferencias proporcionales de desempeño.
+4. El porcentaje de receptores principales mide combinaciones sede-receptor, **no cobertura de solicitudes**. En Tintal Plaza, Unicentro de Occidente y Santa Librada se recomienda contrastar los resultados con el análisis complementario.
+5. Los valores de espera y los filtros de validez corresponden a las definiciones de cada indicador; no debe extrapolarse el universo de jornadas válidas al total de atenciones.
 
-```text
-Restart Kernel
-+
-Run All
-```
+## Trabajo pendiente
 
-El objetivo será identificar si la discrepancia proviene del orden de ejecución de las celdas o de una sobrescritura accidental de la variable dentro del notebook.
-
----
-
-# Próximos pasos — Digiturnos
-
-Los siguientes pasos serán:
-
-1. Reiniciar el kernel.
-2. Ejecutar el notebook completo desde el inicio.
-3. Validar nuevamente `dim_afiliados_consistentes.csv`.
-4. Confirmar:
-   - 0 duplicados;
-   - 0 nulos en la llave.
-5. Integrar Digiturnos con la dimensión de afiliados.
-6. Integrar Digiturnos con la dimensión de grupo familiar.
-7. Clasificar clientes.
-8. Generar:
-
-```text
-data/processed/digiturnos_analitica.csv
-```
-
-9. Construir indicadores de espera.
-10. Analizar picos de demanda.
-11. Identificar cuellos de botella.
-12. Calcular utilización de usuarios receptores.
-13. Construir consultas SQL.
-14. Diseñar el tablero de Power BI.
-15. Elaborar conclusiones y recomendaciones.
+- Verificar que la versión **guardada en disco** de `05_analisis_digiturnos.sql` incluya íntegramente las consultas 4.5.1 a 4.5.4 y sus controles.
+- Profundizar en demanda por sede, servicio, día y hora para contrastar hipótesis de cuello de botella.
+- Construir o completar las visualizaciones de Digiturnos en Power BI.
+- Redactar conclusiones y recomendaciones ejecutivas diferenciando hallazgos, hipótesis y acciones.
+- Ejecutar la validación final de reproducibilidad, privacidad y sincronización de GitHub.
 
 ---
+
 
 # Trazabilidad
 
@@ -859,59 +827,32 @@ para los análisis posteriores en SQL y Power BI.
 
 ---
 
-# Estado de madurez
+# Estado de madurez y entrega
 
-## Ejercicio 1 — Piscilago
+| Componente | Estado |
+|---|---|
+| Piscilago: perfilamiento, dimensiones y base analítica | Desarrollado |
+| Piscilago: SQL | Avanzado |
+| Piscilago: Power BI | Avanzado; validar versión final |
+| Digiturnos: perfilamiento y controles temporales | Desarrollado |
+| Digiturnos: tablas y análisis SQL | Desarrollado; verificar versión guardada |
+| Digiturnos: consultas 4.5.1 a 4.5.4 | Ejecutadas y revisadas |
+| Digiturnos: tablero Power BI | Pendiente de consolidación |
+| Digiturnos: conclusiones ejecutivas | Pendiente |
+| Reproducibilidad y publicación GitHub | Requiere verificación final |
 
-```text
-Estado: Avanzado
+## Control de versiones y publicación
 
-Perfilamiento:             completado
-Dimensión afiliados:       completada
-Base analítica:            completada
-SQL:                       avanzado
-Power BI:                  avanzado
-Documentación:             en consolidación
-```
+Antes de publicar, guardar los notebooks, scripts SQL, PBIX y README en sus rutas locales. Ejecutar `git status`, inspeccionar los archivos preparados con `git diff --cached --stat` y confirmar que no haya datos personales, credenciales, fuentes originales ni exportaciones sensibles. Luego realizar commit y push a `origin/main`.
 
-## Ejercicio 2 — Digiturnos
+El archivo `.gitignore` excluye `data/raw/`, `.venv/` y `outputs/`; **los archivos previamente versionados no dejan de rastrearse automáticamente** al agregarlos a `.gitignore`. Verificar el estado real con `git ls-files`.
 
-```text
-Estado: En desarrollo
-
-Perfilamiento:              completado
-Limpieza inicial:           completada
-Variables temporales:       completadas
-Validación temporal:        completada
-Dimensión grupo familiar:   completada
-Integración final:          pendiente
-Indicadores:                pendiente
-SQL:                        pendiente
-Power BI:                   pendiente
-Conclusiones:               pendiente
-```
+La documentación contiene resultados de las ejecuciones SQL realizadas; no sustituye una prueba de ejecución completa desde un entorno limpio.
 
 ---
 
-# Entrega preliminar
 
-Esta versión corresponde a un primer punto estable del proyecto.
-
-El objetivo de esta entrega preliminar es centralizar:
-
-- estructura;
-- código;
-- notebooks;
-- SQL;
-- documentación;
-- dimensiones procesadas;
-- avances de visualización.
-
-El desarrollo continuará sobre esta versión utilizando Git para controlar los cambios posteriores.
-
----
-
-# Autor
+# Autor: Angie Coba
 
 Prueba técnica — Analista BI
 

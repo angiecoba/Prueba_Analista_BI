@@ -21,3 +21,6 @@ data/raw/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Base individual de atenciones Digiturnos
+data/processed/digiturnos_atenciones.csv

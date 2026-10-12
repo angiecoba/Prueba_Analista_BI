@@ -1,0 +1,82 @@
+﻿tabla;posicion;columna_original;tipo_postgresql_propuesto;nulos_muestra
+digiturnos_atenciones;1;Sede;TEXT;0
+digiturnos_atenciones;2;UES;TEXT;0
+digiturnos_atenciones;3;Clasifiacion;TEXT;0
+digiturnos_atenciones;4;Usuario_receptor;TEXT;0
+digiturnos_atenciones;5;Tipo_servicio;TEXT;0
+digiturnos_atenciones;6;SUBSERVICIO_HOMOLOGADO;TEXT;0
+digiturnos_atenciones;7;Fecha_Servico;TEXT;0
+digiturnos_atenciones;8;Hora_solicitud_Servicio;TEXT;0
+digiturnos_atenciones;9;Hora_llamado__Servicio;TEXT;0
+digiturnos_atenciones;10;Hora_finalizado_Servicio;TEXT;0
+digiturnos_atenciones;11;Identificacion_Cliente;TEXT;0
+digiturnos_atenciones;12;Tipo_Oficina;TEXT;0
+digiturnos_atenciones;13;id_registro_original;BIGINT;0
+digiturnos_atenciones;14;dt_solicitud;TIMESTAMP;0
+digiturnos_atenciones;15;dt_llamado;TIMESTAMP;0
+digiturnos_atenciones;16;dt_finalizacion;TIMESTAMP;0
+digiturnos_atenciones;17;receptor;TEXT;0
+digiturnos_atenciones;18;sede;TEXT;0
+digiturnos_atenciones;19;fecha_incompleta;TEXT;0
+digiturnos_atenciones;20;secuencia_invalida;TEXT;0
+digiturnos_atenciones;21;duracion_atencion_min;DOUBLE PRECISION;0
+digiturnos_atenciones;22;intervalo_valido;TEXT;0
+digiturnos_atenciones;23;espera_min_diag;DOUBLE PRECISION;0
+digiturnos_atenciones;24;atencion_min_diag;DOUBLE PRECISION;0
+digiturnos_atenciones;25;tiempos_validos_diag;TEXT;0
+digiturnos_atenciones;26;alerta_solapamiento;TEXT;0
+digiturnos_franjas;1;sede;TEXT;0
+digiturnos_franjas;2;fecha_dia;DATE;0
+digiturnos_franjas;3;dia_semana;BIGINT;0
+digiturnos_franjas;4;hora_solicitud;SMALLINT;0
+digiturnos_franjas;5;solicitudes;BIGINT;0
+digiturnos_franjas;6;receptores_observados;TEXT;0
+digiturnos_franjas;7;turnos_validos;BIGINT;0
+digiturnos_franjas;8;espera_promedio_min;DOUBLE PRECISION;0
+digiturnos_franjas;9;espera_mediana_min;DOUBLE PRECISION;0
+digiturnos_franjas;10;espera_p90_min;DOUBLE PRECISION;0
+digiturnos_franjas;11;umbral_p75_demanda;DOUBLE PRECISION;0
+digiturnos_franjas;12;alta_demanda_relativa;TEXT;0
+digiturnos_franjas;13;espera_p90_referencia_sede;DOUBLE PRECISION;0
+digiturnos_franjas;14;espera_elevada_relativa;TEXT;0
+digiturnos_franjas;15;alerta_presion_operativa;TEXT;0
+digiturnos_franjas;16;franja_inicio;TEXT;0
+digiturnos_franjas;17;minutos_servicio;DOUBLE PRECISION;0
+digiturnos_franjas;18;receptores_activos;TEXT;0
+digiturnos_franjas;19;atenciones_en_curso;BIGINT;0
+digiturnos_franjas;20;minutos_por_receptor_activo;TEXT;2
+digiturnos_franjas;21;servicios_iniciados;BIGINT;0
+digiturnos_franjas;22;duracion_media_min;DOUBLE PRECISION;2
+digiturnos_franjas;23;duracion_mediana_min;DOUBLE PRECISION;2
+digiturnos_franjas;24;duracion_p90_min;DOUBLE PRECISION;2
+digiturnos_franjas;25;solicitudes_por_receptor_activo;TEXT;2
+digiturnos_franjas;26;horas_receptor_equivalentes;TEXT;0
+digiturnos_franjas;27;alerta_integrada_preliminar;TEXT;0
+digiturnos_franjas;28;minutos_por_receptor_observado;TEXT;2
+digiturnos_franjas;29;p75_solicitudes;DOUBLE PRECISION;0
+digiturnos_franjas;30;p75_espera_promedio_min;DOUBLE PRECISION;0
+digiturnos_franjas;31;p75_espera_p90_min;DOUBLE PRECISION;0
+digiturnos_franjas;32;p75_minutos_por_receptor_observado;TEXT;0
+digiturnos_franjas;33;senal_demanda;TEXT;0
+digiturnos_franjas;34;senal_espera_promedio;TEXT;0
+digiturnos_franjas;35;senal_espera_p90;TEXT;0
+digiturnos_franjas;36;senal_carga_observada;TEXT;0
+digiturnos_franjas;37;datos_suficientes;TEXT;0
+digiturnos_franjas;38;numero_senales;BIGINT;0
+digiturnos_franjas;39;prioridad_cuello;TEXT;0
+digiturnos_franjas;40;orden_prioridad;BIGINT;0
+digiturnos_franjas;41;prioridad;TEXT;0
+digiturnos_franjas;42;es_critica;TEXT;0
+digiturnos_franjas;43;es_alta;TEXT;0
+digiturnos_franjas;44;es_prioritaria;TEXT;0
+digiturnos_franjas;45;es_seguimiento;TEXT;0
+digiturnos_franjas;46;sin_evidencia;TEXT;0
+digiturnos_diagnostico_sedes;1;sede;TEXT;0
+digiturnos_diagnostico_sedes;2;franjas_analizadas;BIGINT;0
+digiturnos_diagnostico_sedes;3;solicitudes;BIGINT;0
+digiturnos_diagnostico_sedes;4;franjas_criticas;BIGINT;0
+digiturnos_diagnostico_sedes;5;franjas_altas;BIGINT;0
+digiturnos_diagnostico_sedes;6;franjas_seguimiento;BIGINT;0
+digiturnos_diagnostico_sedes;7;franjas_sin_evidencia;BIGINT;0
+digiturnos_diagnostico_sedes;8;franjas_prioritarias;BIGINT;0
+digiturnos_diagnostico_sedes;9;pct_franjas_prioritarias;DOUBLE PRECISION;0
