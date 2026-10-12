@@ -634,16 +634,6 @@ El archivo `powerbi/Tablero_Digiturnos.pbix` contiene **dos páginas**:
 
 **Exportación estática:** `outputs/Tablero_Digiturnos.pdf` (dos páginas; exportación y revisión visual requeridas antes de la publicación). El PBIX conserva los filtros y las interacciones. El informe no incorpora una tercera página de conclusiones: los hallazgos y las recomendaciones se desarrollarán en la presentación corporativa.
 
-## Trabajo pendiente
-
-- Verificar que la versión **guardada en disco** de `05_analisis_digiturnos.sql` incluya íntegramente las consultas 4.5.1 a 4.5.4 y sus controles.
-- Exportar y revisar visualmente `outputs/Tablero_Digiturnos.pdf` con las dos páginas y filtros restablecidos.
-- Profundizar, si se requiere para la presentación, en demanda por sede, servicio, día y hora para contrastar hipótesis de cuello de botella.
-- Elaborar la presentación corporativa con conclusiones y recomendaciones ejecutivas, diferenciando hallazgos, hipótesis y acciones.
-- Ejecutar la validación final de reproducibilidad, privacidad y sincronización de GitHub.
-
----
-
 
 # Trazabilidad
 
@@ -842,20 +832,6 @@ data/processed/
 para los análisis posteriores en SQL y Power BI.
 
 ---
-
-# Estado de madurez y entrega
-
-| Componente | Estado |
-|---|---|
-| Piscilago: perfilamiento, dimensiones y base analítica | Desarrollado |
-| Piscilago: SQL | Avanzado |
-| Piscilago: Power BI | Tablero desarrollado; PDF disponible en el proyecto local |
-| Digiturnos: perfilamiento y controles temporales | Desarrollado |
-| Digiturnos: tablas y análisis SQL | Desarrollado; verificar versión guardada |
-| Digiturnos: consultas 4.5.1 a 4.5.4 | Ejecutadas y revisadas |
-| Digiturnos: tablero Power BI | Dos páginas desarrolladas; exportar y validar PDF |
-| Digiturnos: conclusiones ejecutivas | Se incluirán en la presentación corporativa |
-| Reproducibilidad y publicación GitHub | Requiere verificación final |
 
 ## Control de versiones y publicación
 
