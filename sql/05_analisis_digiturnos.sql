@@ -4776,3 +4776,123 @@ SELECT
     ) AS solicitudes_sin_tipo_servicio
 
 FROM digiturnos.digiturnos_atenciones;
+
+
+
+/*
+PREGUNTA A
+Tabla ejecutiva: tiempos de espera por sede
+y tipo de servicio.
+*/
+
+SELECT
+    COALESCE(NULLIF(TRIM(sede), ''), 'Sin sede')
+        AS sede,
+
+    COALESCE(
+        NULLIF(TRIM("Tipo_servicio"), ''),
+        'Sin clasificación'
+    ) AS tipo_servicio,
+
+    COUNT(*) AS total_solicitudes,
+
+    ROUND(
+        AVG(espera_min_diag)
+        FILTER (WHERE espera_min_diag >= 0)::numeric,
+        2
+    ) AS espera_promedio_min,
+
+    ROUND(
+        PERCENTILE_CONT(0.5)
+        WITHIN GROUP (ORDER BY espera_min_diag)
+        FILTER (WHERE espera_min_diag >= 0)::numeric,
+        2
+    ) AS espera_mediana_min,
+
+    ROUND(
+        PERCENTILE_CONT(0.9)
+        WITHIN GROUP (ORDER BY espera_min_diag)
+        FILTER (WHERE espera_min_diag >= 0)::numeric,
+        2
+    ) AS espera_p90_min
+
+FROM digiturnos.digiturnos_atenciones
+
+GROUP BY
+    COALESCE(NULLIF(TRIM(sede), ''), 'Sin sede'),
+    COALESCE(
+        NULLIF(TRIM("Tipo_servicio"), ''),
+        'Sin clasificación'
+    )
+
+ORDER BY
+    sede,
+    espera_promedio_min DESC NULLS LAST;
+
+
+
+
+
+
+
+
+WITH demanda_horaria AS (
+    SELECT
+        sede,
+        dt_solicitud::date AS fecha,
+        EXTRACT(ISODOW FROM dt_solicitud)::int AS dia_semana,
+        EXTRACT(HOUR FROM dt_solicitud)::int AS hora,
+        COUNT(*) AS solicitudes
+    FROM digiturnos.digiturnos_atenciones
+    WHERE dt_solicitud IS NOT NULL
+    GROUP BY
+        sede,
+        dt_solicitud::date,
+        EXTRACT(ISODOW FROM dt_solicitud),
+        EXTRACT(HOUR FROM dt_solicitud)
+),
+patrones AS (
+    SELECT
+        sede,
+        dia_semana,
+        hora,
+        SUM(solicitudes) AS solicitudes_acumuladas,
+        ROUND(AVG(solicitudes)::numeric, 2)
+            AS promedio_solicitudes_hora,
+        COUNT(*) AS jornadas_observadas
+    FROM demanda_horaria
+    GROUP BY sede, dia_semana, hora
+),
+ranking AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY sede
+            ORDER BY
+                promedio_solicitudes_hora DESC,
+                jornadas_observadas DESC,
+                dia_semana,
+                hora
+        ) AS posicion
+    FROM patrones
+)
+SELECT
+    sede,
+    CASE dia_semana
+        WHEN 1 THEN 'Lunes'
+        WHEN 2 THEN 'Martes'
+        WHEN 3 THEN 'Miércoles'
+        WHEN 4 THEN 'Jueves'
+        WHEN 5 THEN 'Viernes'
+        WHEN 6 THEN 'Sábado'
+        WHEN 7 THEN 'Domingo'
+    END AS dia_mayor_demanda,
+    LPAD(hora::text, 2, '0') || ':00' AS hora_pico,
+    solicitudes_acumuladas,
+    promedio_solicitudes_hora,
+    jornadas_observadas
+FROM ranking
+WHERE posicion = 1
+ORDER BY promedio_solicitudes_hora DESC;
+
+

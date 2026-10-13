@@ -13,21 +13,21 @@ La solución se organiza en dos ejercicios principales:
 
 # Estado del proyecto
 
-**Versión:** Desarrollo analítico avanzado  
-**Estado:** Análisis SQL y tableros de Power BI de Piscilago y Digiturnos desarrollados. 
+**Versión:** Entrega final de los ejercicios 1 y 2  
+**Estado:** Análisis, consultas SQL, tableros Power BI y presentación ejecutiva desarrollados.
 
-**Avances principales:**
+**Entregables:**
+- Ejercicio 1 — Piscilago: análisis de compradores, penetración, participación, cobertura y tendencias de compra.
+- Ejercicio 2 — Digiturnos: análisis de tiempos de espera, demanda horaria, cuellos de botella, utilización estimada de receptores y priorización operativa.
+- Dos tableros de Power BI, cada uno con dos páginas de análisis.
+- Presentación ejecutiva de 18 diapositivas con resultados, conclusiones y recomendaciones.
 
-- Perfilamiento, limpieza, normalización y controles de calidad de las fuentes de Piscilago y Digiturnos.
-- Dimensiones reutilizables de afiliados y grupo familiar; base analítica de Piscilago.
-- Consultas de modelo, indicadores y análisis de Piscilago; tablero de Power BI y exportación PDF preparados.
-- Modelo PostgreSQL y consultas de análisis operativo de Digiturnos, incluyendo demanda, espera, franjas, receptores y ocupación estimada.
-- Diagnóstico integrado por sede (4.5.3) y matriz exploratoria de priorización operativa (4.5.4), ejecutados con resultados revisados.
-- Conciliaciones documentadas entre universo de solicitudes, jornadas válidas y combinaciones sede-receptor.
-- Tablero Digiturnos de dos páginas: **01. Diagnóstico y prioridades** y **02. Análisis horario y patrones de demanda**; incluye indicadores generales, ranking de sedes, priorización, distribución horaria, comparación demanda/espera, matriz día-hora y segmentación por sede.
-- Las recomendaciones ejecutivas se reservan para la presentación corporativa, evitando duplicar contenidos en Power BI.
+**Archivos de presentación:**
+- `outputs/Tablero_Piscilago.pdf`
+- `outputs/Tablero_Digiturnos.pdf`
+- `outputs/Presentacion_Prueba_Tecnica.pdf`
 
-**Alcance de la validación:** los resultados numéricos reportados proceden de las ejecuciones de SQL compartidas durante el desarrollo. La sincronización efectiva del repositorio remoto y la existencia de una versión local guardada de cada consulta deben comprobarse en Git antes de la entrega.
+**Nota metodológica:** Los indicadores de utilización de Digiturnos representan estimaciones construidas a partir de la actividad observada. Las prioridades de intervención corresponden a criterios analíticos exploratorios.
 
 ---
 
